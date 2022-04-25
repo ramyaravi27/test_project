@@ -1,0 +1,717 @@
+ayden.views.py
+
+from django.shortcuts import render
+from django.shortcuts import render
+from django.shortcuts import render
+from rest_framework import HTTP_HEADER_ENCODING
+from rest_framework.views import APIView
+from authentication.permissions import Check_API_KEY_Auth 
+from drf_yasg.utils import field_value_to_representation, no_body, swagger_auto_schema
+from authentication.models import Tokendict,Tokendictvalue
+#from managedocument.serializers import designSerializer,createnewdesign,submitdocument,ReEditsubmitdocument,create_new_business_unit_serializers,create_new_document_code_serializers,create_new_document_category_serializers,get_download_rulexml_information_serializers,FilterSerialiser
+from rest_framework.decorators import api_view,permission_classes,parser_classes
+from DCCPPrintProcess.databaseconnection import cur,conn,connection
+from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser, MultiPartParser
+from migration.serializers import fileuploadSerializer, headernameSerializer
+from django.core.files.storage import default_storage
+import pyodbc 
+import pandas as pd
+from datetime import date, datetime
+from datetime import datetime
+import datetime
+x = datetime.datetime.now()
+timemin=(x.strftime("%H%M%S"))
+from datetime import datetime
+@swagger_auto_schema(method='post',request_body=fileuploadSerializer,tag=['migration'])
+@api_view(['POST'])
+@permission_classes([Check_API_KEY_Auth,])
+@parser_classes([MultiPartParser,FileUploadParser])
+def uploadstruct(request):
+    import random
+    import shutil
+    from shutil import copyfile
+    filevalue1=request.FILES['jobfile']
+    BuNames=request.data['BuName']
+    print("************************", request.data)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^",request.FILES)
+    print("filenamefilename",str(filevalue1))
+    filenamevalue=str(filevalue1)
+    file_name = default_storage.save(filevalue1.name,filevalue1)
+    file = default_storage.open(file_name)
+    filevalue = default_storage.url(file_name)
+    print("file_urlfile_urlfile",file)
+    print("file_urlfile_urlfile_url",filevalue)
+    filevalue="D:\\print_process\\print-process\\repo\\"+filenamevalue
+    print("filewwwwww",(filevalue))
+    newPath = shutil.copy(filevalue, 'D:\\print_process\\xmldata\\')
+    print("end",newPath)
+    import re
+    import pandas as pd
+    import pyodbc 
+    import os
+    import json
+    import csv
+    from datetime import date, datetime
+    daydate2= datetime.now()
+    daye=daydate2.strftime("%d%b")
+    import xlrd
+    if BuNames=='Ayden':
+        if re.search("\.xml$",filevalue): 
+            jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+            with open (jsondbpath,'r',encoding="utf8") as f:
+                Dbvalues=json.load(f)
+            conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+            cursor29 = conn.cursor()
+            v=cursor29.execute("delete from Ayden")
+            v.commit()    
+            return Response("Ayden done")              
+        else:
+            return Response("unsupported format")     
+    else:
+        return Response("not a BusinessUnit ")
+class clientList(APIView):
+    permission_classes=[Check_API_KEY_Auth]
+    @swagger_auto_schema(
+        tags=['Ayden']
+    )
+    def get(self,request):
+        token1=request.META['HTTP_AUTHORIZATION']
+        v=Tokendictvalue.objects.get(tokenvalue="""b'"""+token1+"""'""")
+        userid=v.userid
+        clientid=client(userid)
+        try:
+            cur.execute("""select id , BUName from Bussiness_Name where id=1""")
+        except:
+            conn.rollback()
+        clientLi=cur.fetchall()
+        clientList=[]
+        head=["id","BUName"]
+        for i in range(len(clientLi)):
+            lisClient=list(clientLi[i])
+            final=dict(zip(head,lisClient))
+            clientList.append(final)
+        return Response(clientList)
+def client(userid):
+    try:
+        cur.execute("""select id from Bussiness_Name where id='"""+str(userid)+"""'""")
+    except:
+        conn.rollback()
+    clientid=cur.fetchall()
+    return clientid[0][0]
+
+
+serializers 
+from rest_framework import serializers
+
+
+
+class fileuploadSerializer(serializers.Serializer):
+   BuName=serializers.CharField()
+   jobfile=serializers.FileField()
+
+
+class fileuploadstaticSerializer(serializers.Serializer):
+   jobfile=serializers.FileField()
+
+   
+class headernameSerializer(serializers.Serializer):
+   filename=serializers.FileField()
+   headersname=serializers.CharField()
+   
+booo views .py
+
+from django.shortcuts import render
+from django.shortcuts import render
+from django.shortcuts import render
+from rest_framework import HTTP_HEADER_ENCODING
+from rest_framework.views import APIView
+from authentication.permissions import Check_API_KEY_Auth 
+from drf_yasg.utils import field_value_to_representation, no_body, swagger_auto_schema
+from authentication.models import Tokendict,Tokendictvalue
+#from managedocument.serializers import designSerializer,createnewdesign,submitdocument,ReEditsubmitdocument,create_new_business_unit_serializers,create_new_document_code_serializers,create_new_document_category_serializers,get_download_rulexml_information_serializers,FilterSerialiser
+from rest_framework.decorators import api_view,permission_classes,parser_classes
+from DCCPPrintProcess.databaseconnection import cur,conn,connection
+from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser, MultiPartParser
+from migration.serializers import fileuploadSerializer, headernameSerializer
+from django.core.files.storage import default_storage
+import pyodbc 
+import pandas as pd
+from datetime import date, datetime
+from datetime import datetime
+import datetime
+x = datetime.datetime.now()
+timemin=(x.strftime("%H%M%S"))
+from datetime import datetime
+@swagger_auto_schema(method='post',request_body=fileuploadSerializer,tag=['migration'])
+@api_view(['POST'])
+@permission_classes([Check_API_KEY_Auth,])
+@parser_classes([MultiPartParser,FileUploadParser])
+def uploadstruct(request):
+    import random
+    import shutil
+    from shutil import copyfile
+    filevalue1=request.FILES['jobfile']
+    BuNames=request.data['BuName']
+    print("************************", request.data)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^",request.FILES)
+    print("filenamefilename",str(filevalue1))
+    filenamevalue=str(filevalue1)
+    file_name = default_storage.save(filevalue1.name,filevalue1)
+    file = default_storage.open(file_name)
+    filevalue = default_storage.url(file_name)
+    print("file_urlfile_urlfile",file)
+    print("file_urlfile_urlfile_url",filevalue)
+    filevalue="D:\\print_process\\print-process\\repo\\"+filenamevalue
+    print("filewwwwww",(filevalue))
+    newPath = shutil.copy(filevalue, 'D:\\print_process\\xmldata\\')
+    print("end",newPath)
+    import re
+    import pandas as pd
+    import pyodbc 
+    import os
+    import json
+    import csv
+    from datetime import date, datetime
+    daydate2= datetime.now()
+    daye=daydate2.strftime("%d%b")
+    import xlrd
+    if BuNames=='Boe':
+        if re.search("\.xls$",filevalue):              
+                wb = xlrd.open_workbook(filevalue)
+                sheet = wb.sheet_by_index(0)
+                aaa=sheet.cell_value(0,1)
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor29 = conn.cursor()
+                v=cursor29.execute("delete from NCOA_Cards")
+                v.commit()
+                import re
+                #Voter_Reg_Num	County_ID	County_Name	Last_Name	First_Name	Middle_Name	Name_Suffix	Full_Name	Move_Date	Return_Date	NCOA_Street1	NCOA_Street2	NCOA_CSZ	NCOA_City	NCOA_State	NCOA_ZIP	Mail_Street1	Mail_Street2	Mail_CSZ	Mail_City	Mail_State	Mail_ZIP	Barcode_Value	update_operator_id	update_dt	Delivery_Point
+                my_list ="Voter_Reg_Num",	"County_ID"	,"County_Name"	,"Last_Name"	,"First_Name",	"Middle_Name",	"Name_Suffix"	,"Full_Name",	"Move_Date",	"Return_Date",	"NCOA_Street1",	"NCOA_Street2"	,"NCOA_CSZ",	"NCOA_City",	"NCOA_State",	"NCOA_ZIP",	"Mail_Street1",	"Mail_Street2",	"Mail_CSZ",	"Mail_City"	,"Mail_State"	,"Mail_ZIP"	,"Barcode_Value",	"update_operator_id",	"update_dt",	"Delivery_Point"
+                # "Serial","Model","ITA_Truck_Class","Install_Date","INS_Dealer_Name","Customer_Name","Brand","Family","Development_Center","Channel","SIC_Code","SIC_Description","NMHG_Industry","Region","Customer_Address_Line_1","City","State","Zip","County","CountryN"	,"Distribution_Type_Month",	"First_Name","Last_Name","Email","InsertDate","InstallDealerCode","OrderingDealerCode",	"BuildPlantNbr","PlantName","Notes","PARBillToCode","PARName","GPARBillToCode","Dealer_Parent","AreaBusinessManager","SIONumber","Theater","Series","OrderNumber","NACustomerName","OrderReceivedDate",	"ActualCLRToShipDate",	"ActualBuildDate",	"ActualShipDate",	"CustAcknwldgmntDate"	,"DateSlotted"	,"OrderRevisionDate","AllRepromiseDatesWithManufacturingComments"	,"SF_AccountID",	"SF_AccountName"	,"SF_ParentID"	,"SF_Vertical"	,"SF_Segment"
+                mynewlist=",".join(my_list)
+                lenstr=len(my_list)
+                print(lenstr,"alalalalalalaal")
+                question=lenstr *'?,'
+                question=question[:-1]
+                print(len(question),"lllllllllllll")
+                colcoma=", "
+                my_new_list = [x + colcoma for x in my_list]
+                stri = ''.join(my_new_list) 
+                result1 = stri[:-2]
+                print("stristristri",len(result1))
+                insertquery=("""INSERT INTO NCOA_Cards ("""+mynewlist+""") VALUES ("""+question+""")""")
+                query=(insertquery)
+                print(sheet.nrows,"ttttttttmmtmtmtmttmmtmt")
+                for iteration in range(1, sheet.nrows):
+                    count=1
+                    abs=[]
+                    for r in range(iteration, sheet.nrows):
+                        if count<=lenstr:
+                            print(len(abs),sheet.cell(r-1,count-1).value)
+                            abs.append(str(sheet.cell(r-1,count-1).value).replace("'",'"'))
+                            count+=1           
+                        else:                        
+                            newabs="','".join(abs)                
+                            print("""INSERT INTO NCOA_Cards ("""+mynewlist+""") VALUES ('"""+newabs+"""')""")
+                            query="""INSERT INTO NCOA_Cards ("""+mynewlist+""") VALUES ('"""+newabs+"""')"""
+                            cursor29.execute(query)
+                            conn.commit()
+                            break
+                cursor29.close()
+                conn.close()
+                ###########---------from db records to convert xml file ----------------#############
+                import xml.etree.ElementTree as gfg
+                import os , json
+                import pyodbc
+                import urllib
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor = conn.cursor()
+                cursor.execute("SELECT * from NCOA_Cards")
+                rows = cursor.fetchall()
+                cursor.execute("SELECT count(*)FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'NCOA_Cards'")
+                columncount=cursor.fetchall()
+                countcolumn=columncount[0][0]
+                for i in range(len(rows)):
+                    tagst='<fields>'+'\n'
+                    tagen='</fields>'+'\n'
+                    for j in range(countcolumn):
+                        my_list=my_list
+                        dkdk=('<'+my_list[j]+'>'+ rows[i][j]+ '</'+my_list[j]+'>'+'\n')
+                        fin = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "a")
+                        fin.writelines(dkdk)
+                        fin.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "r")
+                xmltag='<?xml version="1.0"?> \n'
+                readdat=filere.readlines()
+                readdat.insert(0,xmltag)
+                filere.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "w")
+                filere.writelines(readdat)
+                filere.close()
+                return Response("Boe xls done ")
+        elif re.search("\.xlsx$",filevalue):              
+                wb = xlrd.open_workbook(filevalue)
+                sheet = wb.sheet_by_index(0)
+                aaa=sheet.cell_value(0,1)
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor29 = conn.cursor()
+                v=cursor29.execute("delete from Voter_Cards")
+                v.commit()
+                import re
+                my_list = "Print_Code  ","	First_Name  ","Middle_Name  "," Last_Name  ","Suffix_Name  ","	Mail_Addr_Line_1 ","	Mail_Addr_Line_2 " ,"Mail_Addr_City  ","	Mail_Addr_State","Mail_Addr_Zip_Code  ","	Res_Addr_Full  ","	Res_Addr_City_State_Zip ", "Reg_Date  ","	Issue_Date  ","	Party  ","	Gender   ","Voter_Reg_No  ","Precinct   ","	MUNICIPALITY   ","	DISTRICT   ","	CONGRESSIONAL   ","	SUPERIOR_COURT ",  "JUDICIAL   ","	SENATE   ","	HOUSE   ","	COMMISSIONER   ", " 	SCHOOL	  ","FIRE   ","	RESCUE_DISTRICT   ","	SANITARY  ","PROSECUTORIAL   ","	Polling_Place  ","Polling_Place_Address   ","	Polling_Place_City_State_Zip   ","	ID_Required   ","	ncid  "
+                #"Serial","Model","ITA_Truck_Class","Install_Date","INS_Dealer_Name","Customer_Name","Brand","Family","Development_Center","Channel","SIC_Code","SIC_Description","NMHG_Industry","Region","Customer_Address_Line_1","City","State","Zip","County","CountryN"	,"Distribution_Type_Month",	"First_Name","Last_Name","Email","InsertDate","InstallDealerCode","OrderingDealerCode",	"BuildPlantNbr","PlantName","Notes","PARBillToCode","PARName","GPARBillToCode","Dealer_Parent","AreaBusinessManager","SIONumber","Theater","Series","OrderNumber","NACustomerName","OrderReceivedDate",	"ActualCLRToShipDate",	"ActualBuildDate",	"ActualShipDate",	"CustAcknwldgmntDate"	,"DateSlotted"	,"OrderRevisionDate","AllRepromiseDatesWithManufacturingComments"	,"SF_AccountID",	"SF_AccountName"	,"SF_ParentID"	,"SF_Vertical"	,"SF_Segment"
+                mynewlist=",".join(my_list)
+                lenstr=len(my_list)
+                print(lenstr,"alalalalalalaal")
+                question=lenstr *'?,'
+                question=question[:-1]
+                print(len(question),"lllllllllllll")
+                colcoma=", "
+                my_new_list = [x + colcoma for x in my_list]
+                stri = ''.join(my_new_list) 
+                result1 = stri[:-2]
+                print("stristristri",len(result1))
+                insertquery=("""INSERT INTO Voter_Cards ("""+mynewlist+""") VALUES ("""+question+""")""")
+                query=(insertquery)
+                print(sheet.nrows,"ttttttttmmtmtmtmttmmtmt")
+                for iteration in range(1, sheet.nrows):
+                    count=1
+                    abs=[]
+                    for r in range(iteration, sheet.nrows):
+                        if count<=lenstr:
+                            print(len(abs),sheet.cell(r-1,count-1).value)
+                            abs.append(str(sheet.cell(r-1,count-1).value).replace("'",'"'))
+                            count+=1           
+                        else:                        
+                            newabs="','".join(abs)                
+                            print("""INSERT INTO Voter_Cards ("""+mynewlist+""") VALUES ('"""+newabs+"""')""")
+                            query="""INSERT INTO Voter_Cards ("""+mynewlist+""") VALUES ('"""+newabs+"""')"""
+                            cursor29.execute(query)
+                            conn.commit()
+                            break
+                cursor29.close()
+                conn.close()
+                ###########---------from db records to convert xml file ----------------#############
+                import xml.etree.ElementTree as gfg
+                import os , json
+                import pyodbc
+                import urllib
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor = conn.cursor()
+                cursor.execute("SELECT * from Voter_Cards")
+                rows = cursor.fetchall()
+                cursor.execute("SELECT count(*)FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Voter_Cards'")
+                columncount=cursor.fetchall()
+                countcolumn=columncount[0][0]
+                for i in range(len(rows)):
+                    tagst='<fields>'+'\n'
+                    tagen='</fields>'+'\n'
+                    for j in range(countcolumn):
+                        my_list=my_list
+                        dkdk=('<'+my_list[j]+'>'+ rows[i][j]+ '</'+my_list[j]+'>'+'\n')
+                        fin = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "a")
+                        fin.writelines(dkdk)
+                        fin.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "r")
+                xmltag='<?xml version="1.0"?> \n'
+                readdat=filere.readlines()
+                readdat.insert(0,xmltag)
+                filere.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "w")
+                filere.writelines(readdat)
+                filere.close()
+
+                return Response("Beo xlsx done")
+        else:
+            return Response(" unsupport format")
+
+    else:
+        return Response("not a BusinessUnit ")
+
+class clientList(APIView):
+    permission_classes=[Check_API_KEY_Auth]
+    @swagger_auto_schema(
+        tags=['Boe']
+    )
+    def get(self,request):
+        token1=request.META['HTTP_AUTHORIZATION']
+        v=Tokendictvalue.objects.get(tokenvalue="""b'"""+token1+"""'""")
+        userid=v.userid
+        clientid=client(userid)
+        try:
+            cur.execute("""select id , BUName from Bussiness_Name where id=2""")
+        except:
+            conn.rollback()
+        clientLi=cur.fetchall()
+        clientList=[]
+        head=["id","BUName"]
+        for i in range(len(clientLi)):
+            lisClient=list(clientLi[i])
+            final=dict(zip(head,lisClient))
+            clientList.append(final)
+        return Response(clientList)
+def client(userid):
+    try:
+        cur.execute("""select id from Bussiness_Name where id='"""+str(userid)+"""'""")
+    except:
+        conn.rollback()
+    clientid=cur.fetchall()
+    return clientid[0][0]
+
+    
+
+
+serializers
+
+from rest_framework import serializers
+
+
+
+class fileuploadSerializer(serializers.Serializer):
+   BuName=serializers.CharField()
+   jobfile=serializers.FileField()
+
+
+class fileuploadstaticSerializer(serializers.Serializer):
+   jobfile=serializers.FileField()
+
+   
+class headernameSerializer(serializers.Serializer):
+   filename=serializers.FileField()
+   headersname=serializers.CharField()
+   
+   
+grtiftern.views.py
+
+from django.shortcuts import render
+from django.shortcuts import render
+from django.shortcuts import render
+from rest_framework import HTTP_HEADER_ENCODING
+from rest_framework.views import APIView
+from authentication.permissions import Check_API_KEY_Auth 
+from drf_yasg.utils import field_value_to_representation, no_body, swagger_auto_schema
+from authentication.models import Tokendict,Tokendictvalue
+#from managedocument.serializers import designSerializer,createnewdesign,submitdocument,ReEditsubmitdocument,create_new_business_unit_serializers,create_new_document_code_serializers,create_new_document_category_serializers,get_download_rulexml_information_serializers,FilterSerialiser
+from rest_framework.decorators import api_view,permission_classes,parser_classes
+from DCCPPrintProcess.databaseconnection import cur,conn,connection
+from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser, MultiPartParser
+from migration.serializers import fileuploadSerializer, headernameSerializer
+from django.core.files.storage import default_storage
+import pyodbc 
+import pandas as pd
+from datetime import date, datetime
+from datetime import datetime
+import datetime
+x = datetime.datetime.now()
+timemin=(x.strftime("%H%M%S"))
+from datetime import datetime
+@swagger_auto_schema(method='post',request_body=fileuploadSerializer,tag=['migration'])
+@api_view(['POST'])
+@permission_classes([Check_API_KEY_Auth,])
+@parser_classes([MultiPartParser,FileUploadParser])
+def uploadstruct(request):
+    import random
+    import shutil
+    from shutil import copyfile
+    filevalue1=request.FILES['jobfile']
+    BuNames=request.data['BuName']
+    print("************************", request.data)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^",request.FILES)
+    print("filenamefilename",str(filevalue1))
+    filenamevalue=str(filevalue1)
+    file_name = default_storage.save(filevalue1.name,filevalue1)
+    file = default_storage.open(file_name)
+    filevalue = default_storage.url(file_name)
+    print("file_urlfile_urlfile",file)
+    print("file_urlfile_urlfile_url",filevalue)
+    filevalue="D:\\print_process\\print-process\\repo\\"+filenamevalue
+    print("filewwwwww",(filevalue))
+    newPath = shutil.copy(filevalue, 'D:\\print_process\\xmldata\\')
+    print("end",newPath)
+    import re
+    import pandas as pd
+    import pyodbc 
+    import os
+    import json
+    import csv
+    from datetime import date, datetime
+    daydate2= datetime.now()
+    daye=daydate2.strftime("%d%b")
+    import xlrd   
+    if BuNames=='Grifton':
+        if re.search("\.txt$",filevalue):              
+            jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+            with open (jsondbpath,'r',encoding="utf8") as f:
+                Dbvalues=json.load(f)
+            conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+            cursor29 = conn.cursor()
+            v=cursor29.execute("delete from Grifton")
+            v.commit() 
+            return Response("grifton done")
+        else:
+            return Response("unsupported format") 
+
+    else:
+        return Response("not a BusinessUnit ")
+
+    
+class clientList(APIView):
+    permission_classes=[Check_API_KEY_Auth]
+    @swagger_auto_schema(
+        tags=['Grifton']
+    )
+    def get(self,request):
+        token1=request.META['HTTP_AUTHORIZATION']
+        v=Tokendictvalue.objects.get(tokenvalue="""b'"""+token1+"""'""")
+        userid=v.userid
+        clientid=client(userid)
+        try:
+            cur.execute("""select id , BUName from Bussiness_Name where id=3""")
+        except:
+            conn.rollback()
+        clientLi=cur.fetchall()
+        clientList=[]
+        head=["id","BUName"]
+        for i in range(len(clientLi)):
+            lisClient=list(clientLi[i])
+            final=dict(zip(head,lisClient))
+            clientList.append(final)
+        return Response(clientList)
+def client(userid):
+    try:
+        cur.execute("""select id from Bussiness_Name where id='"""+str(userid)+"""'""")
+    except:
+        conn.rollback()
+    clientid=cur.fetchall()
+    return clientid[0][0]
+
+serializers
+
+from rest_framework import serializers
+
+
+
+class fileuploadSerializer(serializers.Serializer):
+   BuName=serializers.CharField()
+   jobfile=serializers.FileField()
+
+
+class fileuploadstaticSerializer(serializers.Serializer):
+   jobfile=serializers.FileField()
+
+   
+class headernameSerializer(serializers.Serializer):
+   filename=serializers.FileField()
+   headersname=serializers.CharField()
+   
+   
+   
+   
+nacco.views.py
+
+from django.shortcuts import render
+from django.shortcuts import render
+from django.shortcuts import render
+from rest_framework import HTTP_HEADER_ENCODING
+from rest_framework.views import APIView
+from authentication.permissions import Check_API_KEY_Auth 
+from drf_yasg.utils import field_value_to_representation, no_body, swagger_auto_schema
+from authentication.models import Tokendict,Tokendictvalue
+#from managedocument.serializers import designSerializer,createnewdesign,submitdocument,ReEditsubmitdocument,create_new_business_unit_serializers,create_new_document_code_serializers,create_new_document_category_serializers,get_download_rulexml_information_serializers,FilterSerialiser
+from rest_framework.decorators import api_view,permission_classes,parser_classes
+from DCCPPrintProcess.databaseconnection import cur,conn,connection
+from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser, MultiPartParser
+from migration.serializers import fileuploadSerializer, headernameSerializer
+from django.core.files.storage import default_storage
+import pyodbc 
+import pandas as pd
+from datetime import date, datetime
+from datetime import datetime
+import datetime
+x = datetime.datetime.now()
+timemin=(x.strftime("%H%M%S"))
+from datetime import datetime
+@swagger_auto_schema(method='post',request_body=fileuploadSerializer,tag=['migration'])
+@api_view(['POST'])
+@permission_classes([Check_API_KEY_Auth,])
+@parser_classes([MultiPartParser,FileUploadParser])
+def uploadstruct(request):
+    import random
+    import shutil
+    from shutil import copyfile
+    filevalue1=request.FILES['jobfile']
+    BuNames=request.data['BuName']
+    print("************************", request.data)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^",request.FILES)
+    print("filenamefilename",str(filevalue1))
+    filenamevalue=str(filevalue1)
+    file_name = default_storage.save(filevalue1.name,filevalue1)
+    file = default_storage.open(file_name)
+    filevalue = default_storage.url(file_name)
+    print("file_urlfile_urlfile",file)
+    print("file_urlfile_urlfile_url",filevalue)
+    filevalue="D:\\print_process\\print-process\\repo\\"+filenamevalue
+    print("filewwwwww",(filevalue))
+    newPath = shutil.copy(filevalue, 'D:\\print_process\\xmldata\\')
+    print("end",newPath)
+    import re
+    import pandas as pd
+    import pyodbc 
+    import os
+    import json
+    import csv
+    from datetime import date, datetime
+    daydate2= datetime.now()
+    daye=daydate2.strftime("%d%b")
+    import xlrd
+    if BuNames=='Nacco':
+        if re.search("\.xlsx$",filevalue):              
+                wb = xlrd.open_workbook(filevalue)
+                sheet = wb.sheet_by_index(0)
+                aaa=sheet.cell_value(0,1)
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor29 = conn.cursor()
+                v=cursor29.execute("delete from Acculink_distribution")
+                v.commit()
+                import re
+                my_list ="Serial","Model","ITA_Truck_Class","Install_Date","INS_Dealer_Name","Customer_Name","Brand","Family","Development_Center","Channel","SIC_Code","SIC_Description","NMHG_Industry","Region","Customer_Address_Line_1","City","State","Zip","County","CountryN"	,"Distribution_Type_Month",	"First_Name","Last_Name","Email","InsertDate","InstallDealerCode","OrderingDealerCode",	"BuildPlantNbr","PlantName","Notes","PARBillToCode","PARName","GPARBillToCode","Dealer_Parent","AreaBusinessManager","SIONumber","Theater","Series","OrderNumber","NACustomerName","OrderReceivedDate",	"ActualCLRToShipDate",	"ActualBuildDate",	"ActualShipDate",	"CustAcknwldgmntDate"	,"DateSlotted"	,"OrderRevisionDate","AllRepromiseDatesWithManufacturingComments"	,"SF_AccountID",	"SF_AccountName"	,"SF_ParentID"	,"SF_Vertical"	,"SF_Segment"
+                mynewlist=",".join(my_list)
+                lenstr=len(my_list)
+                print(lenstr,"alalalalalalaal")
+                question=lenstr *'?,'
+                question=question[:-1]
+                print(len(question),"lllllllllllll")
+                colcoma=", "
+                my_new_list = [x + colcoma for x in my_list]
+                stri = ''.join(my_new_list) 
+                result1 = stri[:-2]
+                print("stristristri",len(result1))
+                insertquery=("""INSERT INTO Acculink_distribution ("""+mynewlist+""") VALUES ("""+question+""")""")
+                query=(insertquery)
+                print(sheet.nrows,"ttttttttmmtmtmtmttmmtmt")
+                for iteration in range(1, sheet.nrows):
+                    count=1
+                    abs=[]
+                    for r in range(iteration, sheet.nrows):
+                        if count<=lenstr:
+                            print(len(abs),sheet.cell(r-1,count-1).value)
+                            abs.append(str(sheet.cell(r-1,count-1).value).replace("'",'"'))
+                            count+=1           
+                        else:                        
+                            newabs="','".join(abs)                
+                            print("""INSERT INTO Acculink_distribution ("""+mynewlist+""") VALUES ('"""+newabs+"""')""")
+                            query="""INSERT INTO Acculink_distribution ("""+mynewlist+""") VALUES ('"""+newabs+"""')"""
+                            cursor29.execute(query)
+                            conn.commit()
+                            break
+                cursor29.close()
+                conn.close()
+                ###########---------from db records to convert xml file ----------------#############
+                import xml.etree.ElementTree as gfg
+                import os , json
+                import pyodbc
+                import urllib
+                jsondbpath=os.path.dirname(os.path.abspath(__file__))+'/Txdudatabase.json'
+                with open (jsondbpath,'r',encoding="utf8") as f:
+                    Dbvalues=json.load(f)
+                conn = pyodbc.connect(driver=Dbvalues['driver'], host=Dbvalues['host'], database=Dbvalues['database'],user=Dbvalues['user'], password=Dbvalues['password'])
+                cursor = conn.cursor()
+                cursor.execute("SELECT * from Acculink_distribution")
+                rows = cursor.fetchall()
+                cursor.execute("SELECT count(*)FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Acculink_distribution'")
+                columncount=cursor.fetchall()
+                countcolumn=columncount[0][0]
+                for i in range(len(rows)):
+                    tagst='<fields>'+'\n'
+                    tagen='</fields>'+'\n'
+                    for j in range(countcolumn):
+                        my_list=my_list
+                        dkdk=('<'+my_list[j]+'>'+ rows[i][j]+ '</'+my_list[j]+'>'+'\n')
+                        fin = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "a")
+                        fin.writelines(dkdk)
+                        fin.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "r")
+                xmltag='<?xml version="1.0"?> \n'
+                readdat=filere.readlines()
+                readdat.insert(0,xmltag)
+                filere.close()
+                filere = open("D:\\print_process\\xmldata\\"+daye+"_xlsfile_doc"+timemin+".xml", "w")
+                filere.writelines(readdat)
+                #filere.close()
+                return Response("Nacco done")
+        else:
+            return Response("unsupported format")
+    else:
+        return Response("not a BusinessUnit ")
+
+    
+class clientList(APIView):
+    permission_classes=[Check_API_KEY_Auth]
+    @swagger_auto_schema(
+        tags=['Nacco']
+    )
+    def get(self,request):
+        token1=request.META['HTTP_AUTHORIZATION']
+        v=Tokendictvalue.objects.get(tokenvalue="""b'"""+token1+"""'""")
+        userid=v.userid
+        clientid=client(userid)
+        try:
+            cur.execute("""select id , BUName from Bussiness_Name where id=4""")
+        except:
+            conn.rollback()
+        clientLi=cur.fetchall()
+        clientList=[]
+        head=["id","BUName"]
+        for i in range(len(clientLi)):
+            lisClient=list(clientLi[i])
+            final=dict(zip(head,lisClient))
+            clientList.append(final)
+        return Response(clientList)
+def client(userid):
+    try:
+        cur.execute("""select id from Bussiness_Name where id='"""+str(userid)+"""'""")
+    except:
+        conn.rollback()
+    clientid=cur.fetchall()
+    return clientid[0][0]
+
+
+
+
+serializers
+
+from rest_framework import serializers
+
+
+
+class fileuploadSerializer(serializers.Serializer):
+   BuName=serializers.CharField()
+   jobfile=serializers.FileField()
+
+
+class fileuploadstaticSerializer(serializers.Serializer):
+   jobfile=serializers.FileField()
+
+   
+class headernameSerializer(serializers.Serializer):
+   filename=serializers.FileField()
+   headersname=serializers.CharField()
