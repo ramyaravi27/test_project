@@ -1,0 +1,1059 @@
+login html
+
+
+<div class="signin-content">
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <p>Please login to continue</p>
+          <mat-form-field class="full-width-input">
+            <input matInput placeholder="User" formControlName="userName" required>
+            <mat-error *ngIf="isFieldInvalid('userName')">
+              Please inform your user name
+            </mat-error>
+            <mat-error *ngIf="errormsg">
+              Invalid UserName
+            </mat-error>
+
+          </mat-form-field>
+          <mat-form-field class="full-width-input">
+            <input matInput type="password" placeholder="Password" formControlName="password" required>
+            <mat-error *ngIf="isFieldInvalid('userName')">
+              Please inform your password
+            </mat-error>
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit">Login</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+
+login csss
+mat-card {
+    max-width: 400px;
+    margin: 2em auto;
+    text-align: center;
+  }
+  .signin-content {
+    padding: 60px 1rem;
+  }
+  .full-width-input {
+    width: 100%;
+  }
+  ts
+  import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+
+import {Router} from '@angular/router'
+import { fabric } from 'fabric';
+import { PostService } from '../post/post.service';
+// import * as fabric from 'fabric/fabric-impl';
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
+
+
+form: FormGroup;
+private formSubmitAttempt: boolean;
+
+constructor(
+  private fb: FormBuilder,
+  private ucs: PostService
+) {}
+
+ngOnInit() {
+  this.form = this.fb.group({
+    userName: ['', Validators.required],
+    password: ['', Validators.required]
+  });
+}
+
+isFieldInvalid(field: string) {
+  return (
+    (!this.form.get(field).valid && this.form.get(field).touched) ||
+    (this.form.get(field).untouched && this.formSubmitAttempt)
+  );
+}
+errormsg:boolean= false
+object:any=[]
+onSubmit() {
+  
+  console.log("userdetails",this.form.value)
+
+  if (this.form.valid) {
+    this.ucs.login(this.form.value);
+  }
+  this.formSubmitAttempt = true;
+  this.object=this.form.value
+  console.log("value",this.object)
+} 
+
+
+getFullYear() {
+  return new Date().getFullYear();
+}
+
+}
+
+header .html
+<div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <!-- <button class=" btn btn-primary " style="    margin-left: 1035px;
+          margin-top: 9px;
+          margin-bottom: 15px;" (click)="btnclass()">Create new</button>&nbsp;&nbsp; -->
+          <button class="btn btn-primary"  style="margin-bottom: 6px;" (click)="onLogout1()">back</button>&nbsp;
+          <button mat-icon-button>
+            <mat-icon aria-label="Heart">favorite</mat-icon>
+         </button>
+ <div class="usercontact-list">  
+    <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>profile</th>
+        <th>Id</th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>         
+        <th>Place</th>
+        <th>Edit</th>
+        <th>Delete</th>
+        
+      
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of usercontacts"
+      (rowEditEnter)="rowEditEnter($event)"
+      (cellEditEnter)="cellEditEnter($event)"
+      (cellEdit)="cellEdit($event)"
+      (cellEditDone)="cellEditDone()"
+      (cellEditExit)="cellEditExit()"
+      (rowEdit)="rowEdit($event)"
+      (rowEditDone)="rowEditDone()"
+      (rowEditExit)="rowEditExit()" (click)="RowSelected(u);">
+      <td>
+        <img [src]="u.profile" style="max-width: 60px;"/> </td>
+        <td> {{u.id}}</td>
+        <td> {{u.firstname}} </td>
+        <td>{{u.lastname}} </td>
+        <td> {{u.email}} </td>
+        <td>{{u.place}} </td>
+        <td>
+         
+            <button class=" btn btn-primary "  (click)="editUserContact(u)">Edit</button>
+            
+        </td>
+        
+        <td>
+          <button class="btn btn-danger ml-2 "  (click)="deleteUserContact(u) ">Delete</button>
+        </td>
+        
+      </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+scss
+
+
+footer {
+    height: 25px !important;
+ width: 100% !important;
+ position: fixed !important;
+ bottom: 0px !important;
+ background-color: gray !important;
+ text-align:center !important;
+ color: #fff !important;
+ z-index: 99 !important;
+ }  
+ 
+ ts
+ // import { Route } from '@angular/compiler/src/core';
+import { Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { Post } from '../post/post';
+import { PostService } from '../post/post.service';
+// import {MatIconModule} from '@angular/material/icon';
+@Component({
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss']
+})
+export class HeaderComponent implements OnInit {
+  usercontacts: Post[]; // Array<string>
+  usercont: Post;
+  selectedUser: any;
+  addForm: FormGroup;
+  usercontact: Post;
+  @ViewChild('logger')
+  public logger: ElementRef;
+  public selection = true;
+  public selectionMode = 'multiple';
+  public selectionModes = [];
+  public $rowEditEnter = false;
+  public $cellEditEnter = false;
+  public $cellEdit = false;
+  public $rowEdit = false;
+  emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  id:any;
+  firstname:any;
+  lastname:any;
+  email:any;
+  place:any;
+  isLoggedIn$: Observable<boolean>;
+  constructor(private renderer:Renderer2,private formBuilder: FormBuilder,private ucs: PostService,private router:Router,private userService: PostService) { }
+
+  ngOnInit(): void {
+    console.log('usercontact:init');
+    this.usercontacts = this.ucs.getall();
+    console.log(this.usercontacts);
+    this.isLoggedIn$ = this.ucs.isLoggedIn;
+   
+}
+  
+  RowSelected(u:any){
+    this.selectedUser=u;   // declare variable in component.
+    }
+    capslockOn;
+  @HostListener('window:click', ['$event']) onClick(event){
+  this.getcapsfun(event);
+    }
+   @HostListener('window:keydown', ['$event'])
+   onKeyDown(event){
+   this.getcapsfun(event)
+   }
+   @HostListener('window:keyup', ['$event'])
+    onKeyUp(event){
+    if (event.getModifierState && event.getModifierState('CapsLock')) {
+     this.capslockOn = true;
+    } else {
+     this.capslockOn = false;
+    }
+   }
+   getcapsfun(e){if (e.getModifierState && e.getModifierState('CapsLock')) {
+    this.capslockOn = true;
+    } else {
+     this.capslockOn = false;
+    }}
+  
+  editUserContact(usercontact: Post) {
+    console.log( "userdetails", usercontact);
+    localStorage.removeItem('editUserId');
+    localStorage.setItem('editUserId', usercontact.id.toString());
+    this.router.navigate([`/edit`])
+    // this.ucs.update(usercontact);
+  }
+
+  deleteUserContact(usercontact: Post) {
+    console.log("usercontact",usercontact);
+    this.ucs.delete(usercontact);
+  }
+  btnclass(){
+    this.router.navigate(['/create'])
+  }
+  shapes(){
+    this.router.navigate(['/shapes'])
+  }
+  public selectCellSelectionMode(args) {
+    this.selectionMode = this.selectionModes[args.index].label;
+    //  this.snackbar.open();
+}
+public rowEditEnter(evt) {
+  evt.cancel = this.$rowEditEnter;
+  this.logAnEvent(`=> 'rowEditEnter' with 'RowID':` + evt.rowID, evt.cancel);
+}
+public cellEditEnter(evt) {
+  evt.cancel = this.$cellEditEnter;
+  this.logAnEvent(`=> 'cellEditEnter' with 'value':` + evt.oldValue, evt.cancel);
+}
+public cellEdit(evt) {
+  evt.cancel = this.$cellEdit;
+  this.logAnEvent(`=> 'cellEdit' with 'newValue':` + evt.newValue, evt.cancel);
+}
+public cellEditDone() {
+  this.logAnEvent(`=> 'cellEditDone'`);
+}
+public cellEditExit() {
+  this.logAnEvent(`=> 'cellEditExit'`);
+}
+public rowEdit(evt) {
+  evt.cancel = this.$rowEdit;
+  this.logAnEvent(`=> 'rowEdit'`, evt.cancel);
+}
+public rowEditDone() {
+  this.logAnEvent(`=> 'rowEditDone'`);
+}
+public rowEditExit() {
+  this.logAnEvent(`=> 'rowEditExit'  << End of cycle >>`);
+}
+private logAnEvent(msg: string, canceled?: boolean) {
+const createElem = this.renderer.createElement('p');
+
+if (canceled) {
+    msg = msg.concat(': has been canceled ');
+}
+
+const text = this.renderer.createText(msg);
+this.renderer.appendChild(createElem, text);
+const container = this.logger.nativeElement;
+this.renderer.insertBefore(container, createElem, container.children[0]);
+}
+public clearLog() {
+const  elements = this.logger.nativeElement.querySelectorAll('p');
+for (let index = 0; index < elements.length; index++) {
+    this.renderer.removeChild(this.logger.nativeElement, elements[index]);
+}
+}
+enableEdit = false;
+  enableEditIndex = null;
+enableEditMethod(e, i) {
+  console.log("eeeee",e)
+  console.log("eeeee",i)
+  this.enableEdit = true;
+  this.enableEditIndex = i;
+  console.log(i, e);
+}
+
+
+
+getFullYear() {
+  return new Date().getFullYear();
+}
+
+
+
+// constructor(private authService: AuthService) { }
+
+
+onLogout1(){
+  this.router.navigate(['/header'])
+}
+onLogout() {
+  this.ucs.logout();
+}
+oncline(){
+  this.ucs.logout();
+}
+
+oncline1(){
+  this.router.navigate(['/view'])
+}
+}
+
+
+footer.html
+<header>
+    <div >
+      <i class="material-icons" style="cursor: pointer;">menu</i>
+      <i class="material-icons" [matMenuTriggerFor] = "menu" style="margin-left: 1452px; cursor: pointer;">settings</i>
+  </div>
+  <mat-menu #menu = "matMenu">
+     <button mat-menu-item (click)="oncline2()">Bargraph</button>
+     <button mat-menu-item (click)="oncline1()">back</button>
+     <button mat-menu-item (click)="oncline()">Logout</button>
+  </mat-menu>
+  <mat-menu #setting = "matMenu">
+     <button mat-menu-item (click)="oncline()">logout</button>
+  </mat-menu>
+  
+  </header>
+<div>
+
+    <i   *ngIf="show" class="material-icons "(click)="openModal(templateEdit)"  style="cursor: pointer;     margin-left: 754px;
+    margin-top: 250px;" >add</i>
+    <!-- <div [ngSwitch]="myDir" style="color:Green"> -->
+        <ng-template #templateEdit> 
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Add Information</h4>
+                <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="form-group row" style="margin-top: 2rem;">
+                <label class="col-lg-3 text-left control-label col-form-label" style="margin-left: 4rem;">Name</label>
+                <div class="col-lg-6 ">
+                  <input required class="form-control" placeholder="" type="text" name="names" [(ngModel)]="names">
+                </div>
+              </div>
+              <div class="form-group row" style="margin-top: 2rem;">
+                <label class="col-lg-3  text-left control-label col-form-label" style="margin-left: 4rem;">Email-Id</label>
+                <div class="col-lg-6 ">
+                  <input required class="form-control" placeholder="" 
+                  pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                  type="text" name="EmailId" [(ngModel)]="EmailId">
+                
+                </div>
+              </div>
+              <div class="form-group row" style="margin-top: 2rem;">
+                <label class="col-lg-3  text-left control-label col-form-label" style="margin-left: 4rem;">Phone Number</label>
+                <div class="col-lg-6 ">
+                  <input required class="form-control" OnlyNumber="true" maxlength="10"  placeholder="" type="text" name="Phnumber" [(ngModel)]="Phnumber">
+                </div>
+              </div>
+              <div class="form-group row" style="margin-top: 2rem;">
+                <label class="col-lg-3  text-left control-label col-form-label" style="margin-left: 4rem;">Address</label>
+                <div class="col-lg-6 ">
+                  <input required class="form-control" placeholder="" type="text" name="Address" [(ngModel)]="Address">
+                </div>
+              </div>
+              <div style="text-align: center;margin-bottom: 2rem;">
+                <button class="save_btn btn btn-rounded btn-primary mr-2" 
+                  style="background-color: #6EACAF !important; border-color: #6EACAF;" (click)="onsave()" type="Save">Save</button>
+                  <button type="button" (click)="this.modalRef.hide()"  class="cancel_btn btn btn-rounded btn-primary mr-2" style="background-color: #c9656a !important ;border-color: #c9656a;"  >Back</button>
+              </div>
+  </ng-template>
+  <div *ngIf="!show" class="row">
+    <div style="width: 174px;
+    margin-left: 100px;">
+    <select [value]="-1"  formControlName="website" class="form-control" 
+    (change)="createDocName($event)" [(ngModel)]="selectvalue">  
+      <option [value]="-1" disabled selected hidden>---Select---</option>
+      <option *ngFor="let web of defaultarray" [selected]="web.name== selectvalue">{{web.name}}</option>  
+  </select>  
+</div>
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <button mat-icon-button>
+            <mat-icon aria-label="Heart">favorite</mat-icon>
+         </button>
+         
+ <div class="usercontact-list">  
+
+
+
+    <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Firstname</th>
+        <th>Email-Id</th>
+        <th>Phone Number</th>
+        <th>Address</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of myItems">
+        <td>{{u.id}} </td>
+        <td> {{u.name}} </td>
+        <td> {{u.emailid}}</td>
+        <td> {{u.phnumber}}</td>
+        <td> {{u.address}}</td>
+        <td>
+          <i  class="material-icons "(click)="openModal(templateEdit)"  style="cursor: pointer;" >add</i>  
+        </td>
+      </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+
+  <!-- </div> -->
+</div>
+
+<footer>
+    © <span class="footer" id="year" style="text-align: center;">{{getFullYear()}}</span> 
+  </footer>
+  
+  
+  scss
+  
+  
+footer {
+    height: 25px !important;
+ width: 100% !important;
+ position: fixed !important;
+ bottom: 0px !important;
+ background-color: gray !important;
+ text-align:center !important;
+ color: #fff !important;
+ z-index: 99 !important;
+ }  
+
+
+
+  .modal-header{    background: #333333 !important;
+    color: white;border-radius: 15px 15px 0px 0px;
+   padding: 10px;}
+ .modal-body{background-color: #fff !important;
+   border-radius: 0px 0px 15px 15px;}
+ .modal-header .close{    background: transparent  !important;
+   color: white;
+    opacity: 1;}
+   .modal-title{color:#fff !important;}
+   .required{
+   color: red;
+   margin: 4px;
+  
+}
+.errorlab {
+  height: 10px;
+}
+
+tsimport { Component, ElementRef, HostListener, OnInit, Renderer2, TemplateRef, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder ,FormControl, 
+  FormArray,
+  Validators} from '@angular/forms';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { Post } from '../post/post';
+import { PostService } from '../post/post.service';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+export class MyItems {    
+  Value: string;    
+  constructor(Value:string)    
+  {    
+    this.Value = Value; 
+    
+  }  
+
+
+    
+}   
+@Component({
+  selector: 'app-footer',
+  templateUrl: './footer.component.html',
+  styleUrls: ['./footer.component.scss']
+})
+export class FooterComponent implements OnInit {
+  email: FormControl;
+  usercontacts: Post[]; // Array<string>
+  usercont: Post;
+  selectedUser: any;
+  addForm: FormGroup;
+  usercontact: Post;
+  @ViewChild('logger')
+  public logger: ElementRef;
+  public selection = true;
+  public selectionMode = 'multiple';
+  public selectionModes = [];
+  public $rowEditEnter = false;
+  public $cellEditEnter = false;
+  public $cellEdit = false;
+  public $rowEdit = false;
+  emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  id:any=0;
+  firstname:any;
+  lastname:any;
+  // email:any;
+  place:any;
+  isLoggedIn$: Observable<boolean>;
+  constructor(private modalService: BsModalService,private renderer:Renderer2,private formBuilder: FormBuilder,private ucs: PostService,private router:Router,private userService: PostService) { }
+  buyTicketForm: FormGroup;
+  ngOnInit(): void {
+    console.log('usercontact:init');
+    this.usercontacts = this.ucs.getall();
+    console.log(this.usercontacts);
+    this.isLoggedIn$ = this.ucs.isLoggedIn;
+    
+   
+}modalRef: BsModalRef;
+openModal(templateEdit: TemplateRef<any>) {
+
+  console.log("formid",templateEdit)
+  this.modalRef = this.modalService.show(templateEdit,
+      Object.assign({}, { class: 'modal-lg' }));
+
+      
+  }
+  RowSelected(u:any){
+    this.selectedUser=u;   // declare variable in component.
+    }
+    capslockOn;
+  @HostListener('window:click', ['$event']) onClick(event){
+  this.getcapsfun(event);
+    }
+   @HostListener('window:keydown', ['$event'])
+   onKeyDown(event){
+   this.getcapsfun(event)
+   }
+   @HostListener('window:keyup', ['$event'])
+    onKeyUp(event){
+    if (event.getModifierState && event.getModifierState('CapsLock')) {
+     this.capslockOn = true;
+    } else {
+     this.capslockOn = false;
+    }
+   }
+   getcapsfun(e){if (e.getModifierState && e.getModifierState('CapsLock')) {
+    this.capslockOn = true;
+    } else {
+     this.capslockOn = false;
+    }}
+  
+
+
+  deleteUserContact(usercontact: Post) {
+    console.log("usercontact",usercontact);
+    this.ucs.delete(usercontact);
+  }
+  btnclass(){
+    this.router.navigate(['/create'])
+  }
+  shapes(){
+    this.router.navigate(['/shapes'])
+  }
+ 
+enableEdit = false;
+  enableEditIndex = null;
+enableEditMethod(e, i) {
+  console.log("eeeee",e)
+  console.log("eeeee",i)
+  this.enableEdit = true;
+  this.enableEditIndex = i;
+  console.log(i, e);
+}
+
+
+
+getFullYear() {
+  return new Date().getFullYear();
+}
+
+onLogout() {
+  this.ucs.logout();
+}
+oncline(){
+  this.ucs.logout();
+}
+
+oncline1(){
+  this.router.navigate(['/view'])
+}
+oncline2(){
+  this.router.navigate(['/create'])
+}
+
+obj:any;
+names:any;
+EmailId:any;
+Phnumber:any;
+Address:any;
+
+onsave(){
+
+this.obj={
+  "name":this.names,
+  "emailid":this.EmailId,
+  "phnumber":this.Phnumber,
+  "address":this.Address,
+  
+}
+console.log("output of the content",this.obj)
+this.getlist()
+this.AddItem()
+
+this.modalRef.hide();
+this.names=""
+this.EmailId=""
+this.Phnumber=""
+this.Address=""
+}
+show:boolean=true
+client:any;
+getlist(){
+  this.client=
+{
+  id:this.id+1,
+  name:this.obj.name,
+emailid:this.obj.emailid,
+phnumber:this.obj.phnumber,
+  address:this.obj.address
+}
+  
+  console.log("client data",this.client)
+  this.show=false
+
+  // this.AddItem()
+}
+myItems: MyItems[] = new Array();  
+newItem: any = {};   
+test:any;
+AddItem() {    
+  this.myItems.push(    
+    this.client    
+  ); 
+  
+  console.log("ffwef",this.client)
+  console.log("itemvalue",this.myItems)
+  for(var i=0;i<this.myItems.length;i++){   
+    console.log("eeeeeeeeeeeeee",i)
+  // this.client = {};    
+
+  this.name=this.myItems[i]
+  this.id = i
+  console.log("this.us",this.id)
+  }
+  this.getlistofdrp()
+  
+}  
+testdata:any=[1,2,3,4,3,2,4,5,6,3,2,5,6]
+defaultarray:any=[];
+
+array:any=[]
+getlistofdrp(){
+  this.data=this.testdata
+  console.log("dropdowlwavue",this.data)
+  const map = new Map();
+    for (const item of this.data) {
+      if (!map.has(item)) {
+        map.set(item, true);
+        this.defaultarray.push({
+          Id: item,
+          // name: item.name,
+
+        });
+      console.log("item",item)
+      this.array = item
+      for(var i=0;i<this.array.length;i++){
+        this.noofdocument.push(this.array[i].id)
+      }  
+      // console.log("jbfjadbakjdwuwqiqwj",this.noofdocument)
+
+      }
+
+    }
+}
+saveopenModal(template: TemplateRef<any>) {
+this.modalRef.hide();
+this.modalRef = this.modalService.show(template,
+    Object.assign({}, { class: 'modal-lg' }));
+    
+}
+noofdocument:any;
+data:any
+name:any=[];
+createDocName(e){
+console.log("evefnt in the footer oage",e.target.value)
+}
+
+}
+
+post.services
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { Post } from './post';
+import { Client } from './client';
+// import { Shape } from './shape';
+@Injectable({
+  providedIn: 'root'
+})
+export class PostService {
+  private loggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  users: any;
+  user: Post;
+
+  constructor(
+    private router: Router,private _http: HttpClient
+  ) {}
+
+  // public currentUserSubject = new BehaviorSubject<Post>(new Post());
+  // public currentUser = this.currentUserSubject.asObservable().distinctUntilChanged();
+  // public clientUser = this.clientUserSubject.asObservable().distinctUntilChanged();
+  // private clientUserSubject = new BehaviorSubject<Client>(new ());
+  usercontacts :Post []=[
+    {id: 1,
+    firstname: 'Alex',
+    lastname: 'BlaBla',
+    email: 'alex.blabla@aol.at',
+    place:'polyfills',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/images2.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+
+  },
+  {
+    id: 2,
+    firstname: 'Otto',
+    lastname: 'Blubb',
+    email: 'otto.blubb@dsl.de',
+    place:'rendered',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download4.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 3,
+    firstname: 'Peter',
+    lastname: 'Pan',
+    email: 'peter.pan@neverland.com',
+    place:'initial',
+    type:'rectangle', x:30, y:30, w:12, h:34,
+    profile:'./assets/images/images3.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 4,
+    firstname: 'jemas',
+    lastname: 'list',
+    email: 'jemas.list@dsl.de',
+    place:'styles',
+    type:'rectangle', x:30, y:30, w:12, h:34,
+    profile:'./assets/images/download (1).jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 5,
+    firstname: 'chunks',
+    lastname: 'details',
+    email: 'chunks.vdetails@dsl.de',
+    place:'live',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download2.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 6,
+    firstname: 'sucess',
+    lastname: 'employee',
+    email: 'sucess.blubb@dsl.de',
+    place:'vendors',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download3.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 7,
+    firstname: 'unchange',
+    lastname: 'create',
+    email: 'employee.vcreate@dsl.de',
+    place:'browser',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/download4.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 8,
+    firstname: 'hash',
+    lastname: 'services',
+    email: 'hash.services@dsl.de',
+    place:'server',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/images1.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  }]
+  create(usercontact: Post) {
+    const itemIndex = this.usercontacts.length;
+    usercontact.id = this.getnextId();
+    // console.log(usercontact);
+    this.usercontacts[itemIndex] = usercontact;
+  }
+  delete(usercontact: Post) {
+    this.usercontacts.splice(this.usercontacts.indexOf(usercontact), 1);
+  }
+
+  update(usercontact: Post) {
+    const itemIndex = this.usercontacts.findIndex(item => item.id === usercontact.id);
+    // console.log(itemIndex);
+    this.usercontacts[itemIndex] = usercontact;
+  }
+  
+  // find(id): Observable<Post> {
+  //   return this.httpClient.get<Post>(this.apiURL + '/posts/' + id)
+  //   .pipe(
+  //     catchError(this.errorHandler)
+  //   )
+  // }
+   
+  getall(): Post[] {
+    // console.log('usercontactservice:getall');
+    // console.log(this.usercontacts);
+    return this.usercontacts;
+  }
+  getUserById(id: number) {
+    // console.log(id);
+    const itemIndex = this.usercontacts.findIndex(item => item.id === id);
+    // console.log(itemIndex);
+    return this.usercontacts[itemIndex];
+  }
+  getnextId(): number {
+    let highest = 0;
+    this.usercontacts.forEach(function (item) {
+      if (highest === 0) {
+        highest = item.id;
+      }
+      if (highest < item.id) {
+        highest = item.id;
+      }
+    });
+    return highest + 1;
+  }
+  get isLoggedIn() {
+    return this.loggedIn.asObservable();
+  }
+  
+
+  getShapes(){return this.usercontacts;}
+  login(user: Post) {
+  
+    if (user.userName !== '' && user.password !== '' ) {
+      this.loggedIn.next(true);
+      this.currentuser=user
+      console.log("sadasasad",this.currentuser)
+      this.router.navigate(['/view']);
+    }
+  }
+  currentuser:any;
+  logout() {
+    this.loggedIn.next(false);
+    this.router.navigate(['/login']);
+  }
+
+
+}
+ 
+ ptst.ts
+import { NumberSymbol } from "@angular/common";
+
+export class Post {
+    id:number;
+    firstname:string;
+    lastname:string;
+    email:string;
+    place:string;
+    type: string;
+    profile:string;
+    
+  x:number;
+  y:number;
+  w:number;
+  h:number;
+  userName: string;
+  password: string;
+  date:number;
+  acesceries:string;
+  outgoing:number;
+  range:string;
+  val:number;
+}
+
+Client.ts
+
+export class Client {
+    id:number;
+    firstname:string;
+    lastname:string;
+    email:string;
+    place:string;
+    type: string;
+    profile:string;
+  x:number;
+  y:number;
+  w:number;
+  h:number;
+  userName: string;
+  password: string;
+}
+
+authentication
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
+@Injectable()
+export class AuthenticationService {
+    constructor(private http: HttpClient) { }
+
+    login(username: string, password: string) {
+        return this.http.post<any>(`/users/authenticate`, { username: username, password: password })
+            .pipe(map(user => {
+                // login successful if there's a jwt token in the response
+                if (user && user.token) {
+                    // store user details and jwt token in local storage to keep user logged in between page refreshes
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                }
+
+                return user;
+            }));
+    }
+
+    logout() {
+        // remove user from local storage to log user out
+        localStorage.removeItem('currentUser');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
