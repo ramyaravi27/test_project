@@ -1,0 +1,24 @@
+Create an angular application with the following features
+Create an angular application with the following features 
+	Create a simple login page which accepts an email and password.
+	Condition check needs to be done based on values from a JSON file that is if a pair of email and password is present in the JSON array then the user needs to be authenticated.
+	Email and password inputs should be 2 separate components.
+	The input fields should be validated as
+		1) Should only accept valid email formats
+		2) Should accept only work emails and none of the free emails as provided in the list here (https://gist.github.com/tbrianjones/5992856)
+		3) Passwords should be a minimum of 8 letters with a combination of at least one number, one special character, and one Capital letter.
+		4) In case of incorrect input appropriate error message needs to be shown to the user
+	Once user is authenticated, they will be directly taken to dashboard page
+Dashboard Page
+	Create a simple dashboard page which shows a tabular data.
+	Use the free JSON placeholder API to get the data
+	The page should only be accessible to authenticated users.
+	Table needs to be a custom directive ( <app-table></app-table> ) which can be reused elsewhere
+		1) Table needs to be paginated
+		2) User should be able to sort the table based on title and id
+		3) The input field will search against title, body and id and search term should be highlighted in the result
+		4) Clicking on row will take the user to detailed info page
+Info Page 
+	Simple info page as a popup based on the data from JSON. 
+	When the user clicks on any entry in the table in the dashboard page a popup with the corresponding data will be displayed to the user.
+	The pop up can only be closed by clicking on the close button on the top right corner of the pop up.
