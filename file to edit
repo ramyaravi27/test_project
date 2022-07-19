@@ -1,0 +1,129 @@
+1.HTMl for edit
+	
+<table class="table mt-3">
+    <thead>
+        <tr>
+          
+            <th>First Name</th>
+            <th>Second Name</th>
+            <th>email</th>
+            <th>address</th>
+            <th>contact</th>
+            <th>action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let row of EmployeeData.Employees">
+           
+            <td>{{row.emp_first_name}}</td>
+            <td>{{row.emp_second_name}}</td>
+            <td>{{row.emp_email}}</td>
+            <td>{{row.emp_address}}</td>
+            <td>{{row.emp_contact}}</td>
+            <td>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" (click)="onEdit(row)">Edit</button>
+                <button class="btn btn-danger mx-3" (click)="deleteEmployeeDetails(row)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+Modal for popup the edit button 
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Employee Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="formvalue">
+             
+                <div class="form-group">
+                  <label for="exampleInputEmail1">First Name</label>
+                  <input type="text" formControlName="emp_first_name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                 
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Second Name</label>
+                  <input type="text" formControlName="emp_second_name" class="form-control" id="exampleInputPassword1">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">email</label>
+                    <input type="email" formControlName="emp_email" class="form-control" id="exampleInputPassword1">
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputPassword1">address</label>
+                    <input type="text" formControlName="emp_address" class="form-control" id="exampleInputPassword1">
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputPassword1">contact</label>
+                    <input type="text" formControlName="emp_contact" class="form-control" id="exampleInputPassword1">
+                  </div>
+               
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel">Close</button>
+          <button *ngIf="showAdd" type="button" class="btn btn-primary" (click)="postEmoployeeDetails()" >Add</button>
+          <button *ngIf="showUpdate" type="button" class="btn btn-info" (click)="updateEmployeeDetails()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+ 2.Typescript
+ 
+ for backendconnection
+ 	
+putEmp(data:any)
+  {
+    return this.http.put<any>("http://192.168.7.117:8080/Employees/",data)
+    .pipe(map(res=>{return res;}))
+  }
+ 
+ 
+onEdit(row : any)
+  {
+    this.rowdata = row;
+   
+    //this.showUpdate=true;
+    
+    //this.showAdd=false;
+    this.formvalue.controls['emp_first_name'].setValue(row.emp_first_name);
+    this.formvalue.controls['emp_second_name'].setValue(row.emp_second_name);
+    this.formvalue.controls['emp_email'].setValue(row.emp_email);
+    this.formvalue.controls['emp_address'].setValue(row.emp_address);
+    this.formvalue.controls['emp_contact'].setValue(row.emp_contact); 
+  }
+  
+  
+  
+  updateEmployeeDetails()
+  {
+    this.EmployeeDetailsObj.emp_id=this.formvalue.value.emp_id;
+    this.EmployeeDetailsObj.emp_first_name=this.formvalue.value.emp_first_name;
+    this.EmployeeDetailsObj.emp_second_name=this.formvalue.value.emp_second_name;
+    this.EmployeeDetailsObj.emp_email=this.formvalue.value.emp_email;
+    this.EmployeeDetailsObj.emp_address=this.formvalue.value.emp_address;
+    this.EmployeeDetailsObj.emp_contact=this.formvalue.value.emp_contact;
+    console.log(this.EmployeeDetailsObj);
+
+    this.main.putEmp(this.EmployeeDetailsObj)
+    .subscribe(res=>{
+     
+      
+      this.formvalue.reset();
+      let ref = document.getElementById('cancel')
+      ref?.click();
+      this.getEmployeeDetails();
+      
+    })
+    
+  }
