@@ -1,0 +1,353 @@
+services
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BackendServerService {
+
+  constructor(private requestor : HttpClient) { }
+
+  userAuthentication(authRequest : any){
+    return this.requestor.post(`${environment.backend}${'/user/authorization'}` , authRequest);
+  }
+
+  getAllEmployeeDetails(){
+    return this.requestor.get(`https://jsonplaceholder.typicode.com/posts`)
+  }
+ 
+  getEmployeeDetails(employeeDetail : any){
+    return this.requestor.get(`https://jsonplaceholder.typicode.com/posts/${employeeDetail}`);
+  }
+  
+  // posts
+  updateEmployeeDetails(employeeDetails : any,id:any){
+    console.log("sa",id)
+    return this.requestor.put(`https://jsonplaceholder.typicode.com/posts/${id}` ,employeeDetails);
+  }
+
+  deleteEmployeeDetails(employeeDetails : any){
+    return this.requestor.delete(`${environment.backend}${'/Employees/'}${employeeDetails}`);
+  }
+
+  addNewEmployee(employeeDetails : any){
+    return this.requestor.post(`${environment.backend}${'/Employees/'}` ,employeeDetails);
+  }
+}
+
+
+
+edit ts
+
+
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SharedServiceService } from 'src/app/services/shared/shared-service.service';
+import { Employee } from 'src/app/services/interfaces/interface';
+import { FormBuilder , FormControl , FormGroup } from '@angular/forms';
+import { BackendServerService } from 'src/app/services/backendServer/backend-server.service';
+
+
+
+@Component({
+  selector: 'app-edit-detail',
+  templateUrl: './edit-detail.component.html',
+  styleUrls: ['./edit-detail.component.scss']
+})
+export class EditDetailComponent implements OnInit {
+
+  navigateBack : any ;
+  pageEnable : any ;
+  employee_data : any ;
+  employeeData = {} as Employee ;
+  NewEmployeeDetails = {} as Employee ;
+  Employees : any;
+  emp_id : any;
+
+  constructor(private router : Router, private routingUrl : ActivatedRoute , private share : SharedServiceService ,
+    private backendServer : BackendServerService, private _formBuilder : FormBuilder ) { }
+
+  EditForm = new FormGroup({
+    id: new FormControl(),
+    title: new FormControl(),
+    body : new FormControl(),
+    email :  new FormControl(),
+  });
+
+
+
+  
+  ngOnInit(): void {
+    this.navigateBack = true;
+    this.pageEnable = true ;
+    this.getEmployeeInfo();
+
+    //EditFormBuilder Grouping
+    // this.EditForm = this._formBuilder.group({
+    //   emp_first_name: [],
+    //   emp_second_name: [],
+    //   emp_email : [],
+    //   emp_address :  [],
+    //   emp_contact_no : [],
+    //   }); 
+  }
+
+  navigateBackToAllDetails(){
+    this.router.navigate(['Employees']);
+  }
+
+  setEmployeeData(){
+    let self = this;  
+    self.EditForm.get('id')?.setValue(this.client.id);
+    self.EditForm.get('title')?.setValue(this.client.title);
+    self.EditForm.get('body')?.setValue(this.client.body);
+    // self.EditForm.get('email')?.setValue(this.client.email);
+    // self.EditForm.get('emp_contact_no')?.setValue(self.employeeData.emp_contact);
+  }
+  client:any;
+  getEmployeeInfo(){
+    this.routingUrl.queryParams.subscribe(params =>{
+        console.log(params);
+        this.emp_id = atob(params['token']); 
+        console.log(this.emp_id)
+        this.backendServer.getEmployeeDetails(this.emp_id).subscribe(responseObject => {
+          this.client=responseObject
+          this.setEmployeeData()
+        });
+      })
+    
+  }
+
+  updateEmployeeDetails(){
+
+    var NewEmployeeDetails= {
+      // id : this.employeeData.id,
+      id :  this.EditForm.get('id')?.value ,
+      title : this.EditForm.get('title')?.value ,
+      body :  this.EditForm.get('body')?.value ,
+      // mailid : this.EditForm.get('email')?.value,
+      // emp_contact : this.EditForm.get('emp_contact_no')?.value ,
+    }
+    
+    this.backendServer.updateEmployeeDetails(NewEmployeeDetails,this.client.id).subscribe(responseObject =>{
+      console.log(responseObject)
+      this.navigateBackToAllDetails();
+    })
+  
+  }
+
+  
+  navigateToAllDetails(){
+    this.router.navigate(['Employees'])
+  }
+
+  logout()
+  {
+    this.router.navigate(['']);
+  }
+
+  ngOnDestroy():void {
+  }
+
+  
+
+}
+
+
+html -edit
+
+
+<div style="background-color :antiquewhite; height:100vh">
+    <nav class="navbar header  navbar-expand-lg row" style="background-color: white; color : rgb(5, 157, 170);box-shadow: 0px 0px 15px black ;">
+        <!-- <span class =" btn btn-info bg-light border-0" style="font-weight:700;margin-left: 2.5rem;cursor: pointer;color:rgb(5, 157, 170);" on-click="navigateToAllDetails()">Employee Tracker &nbsp;</span> -->
+        <span type="submit" on-click="logout()" class="btn btn-info btn-sm" style= " margin-left: 65rem;color :white ; font-weight: bold;" >logout</span>
+    </nav>
+    <div >
+        <br>
+        <span type="button"  on-click="navigateBackToAllDetails()" style=" border-radius: 5rem;padding-left: 0rem;"  ><img src="url('../../../../../assets/download.png" class = "navigateBack"></span>
+        <!-- <label class="editInfoLabel" >Edit details</label> -->
+    </div>
+    <div style="padding-top: 9rem;padding-left:27rem;">
+        <div class="card basicCard" >
+            <div class="card-body">
+                <form [formGroup]="EditForm">
+                    <div class="form-outline">
+                        <label class="form-label" for="formEditData" >Id</label><br>
+                        <input type="text"  formControlName="id"  
+                        class="form-control input" autocomplete="off" id="formEditData"  required >
+                    </div>
+                    <div>
+                        <label  >Title </label><br>
+                        <input  type="text" formControlName="title"  
+                        class="form-control input" required>
+                    </div>
+                    <div>
+                        <label  >Body </label><br>
+                        <input  type="email" formControlName="body" 
+                        class="form-control input"   required>
+                    </div>
+                   <!-- <div>
+                        <label  >Email </label><br>
+                        <input  type="text" formControlName="email"  
+                        class="form-control input"   required>
+                    </div> -->
+                     <!-- <div>
+                        <label  >Contact </label><br>
+                        <input  type="number"  formControlName="emp_contact_no"
+                        class="form-control input"   required>
+                    </div> -->
+                    <div>
+                        <button type="submit input"  class="update-btn" on-click="updateEmployeeDetails()" > Update Info </button>
+                    </div>    
+                </form>
+            </div>
+        </div>        
+    </div>    
+</div>    
+
+alll details
+
+
+ <div class="card basicCard "  >
+        <span type="submit" on-click="logout()" class="btn btn-info btn-sm" style= " margin-left: 73rem;color :white ; font-weight: bold;" >logout</span>
+        <div class="card-body dx-datagrid-column overflow-auto">
+            <dx-data-grid 
+                class = "dx-datagrid-action" [columnAutoWidth]="true"
+                [dataSource] = "Full_details_of_employee" 
+                [showColumnLines]="true"
+                [showRowLines]="true"
+                [showBorders]="true"
+                [rowAlternationEnabled]="true">
+                <dxo-paging 
+                    [pageSize]="15"
+                    [pageIndex]="1"> <!-- Shows the second page -->
+                </dxo-paging>
+                <!-- <dxo-scrolling mode="standard" 
+                    [useNative]="true"         
+                    [scrollByContent]="true"
+                    [scrollByThumb]="true"
+                    showScrollbar="onHover">
+                </dxo-scrolling> -->
+                <dxi-column dataField="id" caption="ID"></dxi-column>
+                <dxi-column  dataField="body" caption="Body" ></dxi-column>
+                <dxi-column  dataField="title" dataType="string" caption="Title"></dxi-column>
+               <!-- <dxi-column  dataField="body" caption="Body"></dxi-column> -->
+                <!-- <dxi-column  dataField="emp_contact" caption="Contact No."></dxi-column> -->
+                <dxi-column  caption="Options" datatype="button" cellTemplate="ActionButton"  ></dxi-column> 
+                <div *dxTemplate="let record of 'ActionButton'" >
+                    <span  type="submit" data-container="body" data-toggle="popover" data-content="edit employee details" (click) = "editEmployeeDetail(record.data.id)" style="padding-left: 50px;">
+                        <img src="url('../../../../../assets/edit.jfif" style="width: 40px;height: 40px;">
+                        <!-- <i class="fas fa-paint-brush"></i> -->
+                    </span>
+                    &nbsp;&nbsp;
+                    <!-- <span  type="submit" data-container="body" data-toggle="popover" data-content="Delete employee info" (click) = "deleteEmployeeDetail(record.data.emp_id);this.Deleted=true;">
+                        <img  src="url('../../../../../assets/delete.jfif" style="width: 40px;height: 40px;">
+                    </span> -->
+                </div>
+            
+            </dx-data-grid>
+        </div>
+    </div>
+    <!-- <div *ngIf = "pageEnable" class="toast" role ="alert" >
+        <div class="toast-header">
+            <span type="text">Status</span>
+            <span><p>&times;</p></span>
+        </div>
+        <div class="toast-body">
+            <span>Deleted Successfully !</span>
+        </div>
+    </div> -->
+
+
+
+<!-- <app-edit-detail></app-edit-detail> -->
+
+
+ts
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import  { SharedServiceService } from '../../services/shared/shared-service.service';
+import { BackendServerService } from 'src/app/services/backendServer/backend-server.service';
+
+
+@Component({
+  selector: 'app-all-details',
+  templateUrl: './all-details.component.html',
+  styleUrls: ['./all-details.component.scss']
+})
+export class AllDetailsComponent implements OnInit {
+  Full_details_of_employee :any ;
+  Employees: any;
+  editEmployeeDetailResponse : any ;
+  pageEnable : any ;
+  element : any;
+  employee_id : any;
+  isVisible : boolean = false ;
+  Toastrtype : string;
+  ToastrMessage : string;
+  Deleted: any;
+
+
+  constructor(private requestor : HttpClient, private router : Router,private routingUrl : ActivatedRoute ,
+             private share : SharedServiceService , private backendServer : BackendServerService  ) { }
+
+  ngOnInit(): void {
+    
+    this.getEmployeeDetails();
+    
+  }
+
+
+  getEmployeeDetails(){
+    this.backendServer.getAllEmployeeDetails().subscribe(responseObject => { 
+      this.Full_details_of_employee = responseObject ;
+      this.employee_id = this.Full_details_of_employee['emp_id']
+      
+    })
+  }
+  
+  editEmployeeDetail(employeeId){
+    
+    this.share.saveData(employeeId);
+    this.router.navigate(['edit-detail/'],{ relativeTo : this.routingUrl.parent , queryParams : {'token' : btoa(employeeId)}});
+  }
+
+  AddNewEmployee(){
+    this.router.navigate(['new-entry/'],{ relativeTo : this.routingUrl.parent})
+  }
+
+  deleteEmployeeDetail(employeeId){
+    this.backendServer.deleteEmployeeDetails(employeeId).subscribe(responseObject =>{
+      console.log(responseObject)
+      alert('Deleted Successfully');
+      this.getEmployeeDetails();
+    })
+    
+    
+  }
+
+  navigateToAllDetails(){
+    this.router.navigate(['Employees'])
+  }
+  logout()
+  {
+    this.router.navigate(['/login']);
+  }
+
+}
+
+interface .ts
+export interface Employee {
+    email : number ;
+    id : string ;
+    title : string ;
+    body : string ;
+   
+}
+
