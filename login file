@@ -1,0 +1,199 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BackendServerService } from '../services/backendServer/backend-server.service';
+import { Router } from '@angular/router';
+
+
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit 
+{
+
+  username : string ;
+  password : string ;
+  userLoginInfo :any ={};
+  usernameErrorFlag : any = true ;
+  passwordErrorFlag : any = true ;
+  errorMessageFlag : any = true ;
+  errorMessage : any ;
+  userNameErrorMessage : any  ;
+  passWordErrorMessage : any  ;
+  emailValidator : any ;
+  closeFormFlag : any = true;
+  WelcomeMessage :any = "Hi, there !" ;
+  auth_response : any;
+
+  constructor(private backendServer : BackendServerService , private router : Router) 
+  { 
+
+  }
+
+  ngOnInit(): void 
+  {
+    this.usernameErrorFlag = false ;
+    this.passwordErrorFlag = false ;
+    this.errorMessageFlag = false ; 
+    this.emailValidator = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+  }
+
+  demoClass(this){
+    console.log("Something")
+  }
+
+  onFocus(option : any)
+  { console.log(option)
+    if (option == 'username')
+    {
+      this.usernameErrorFlag = false ;
+      this.errorMessageFlag = false ;
+    }
+    else
+    {
+      this.passwordErrorFlag = false ;
+      this.errorMessageFlag = false ;
+    }
+  }
+
+  closeFormbtn()
+  {
+    this.closeFormFlag = !this.closeFormFlag;
+    if(this.closeFormFlag){
+      this.WelcomeMessage = "Hi, there !" ; 
+    }
+    else{
+      this.WelcomeMessage = "Login";
+    }
+  }
+
+  loginFormValidation()
+  {
+    this.userNameErrorMessage = "Username can't be empty" ;
+    this.passWordErrorMessage = "Password can't be empty" ;
+    if ((this.username === undefined || this.username == "" ) && (this.password != "" || this.password !== undefined)){
+      
+      this.usernameErrorFlag = true;
+    }
+    if ((this.password === undefined || this.password == "" ) && (this.username != "" || this.username !== undefined )){
+      
+      this.passwordErrorFlag = true;
+    }
+    if (([undefined , ""].includes(this.username)) && ([undefined , ""].includes(this.password))){
+
+      this.usernameErrorFlag = true ;
+      this.passwordErrorFlag = true ;
+
+    }
+    if(!this.emailValidator.test(this.username) && ![undefined , ""].includes(this.username))
+    { 
+      this.userNameErrorMessage = "Invalid email format ";
+      this.usernameErrorFlag = true;
+    }
+  }
+
+  
+  loginSubmitForm()
+  {
+    this.ngOnInit();
+    this.loginFormValidation();
+    const userLoginInfo={
+      'user_name' : this.username ,
+      'pass_word' : this.password ,
+    }
+    var emailformat=[
+      
+    ]
+    console.log("sadsd",userLoginInfo)
+    if (!this.usernameErrorFlag && !this.passwordErrorFlag && !this.errorMessageFlag){
+      this.backendServer.login(this.userLoginInfo)
+      // .subscribe(authReponse => {
+      //   this.auth_response = authReponse;
+      //   if (this.auth_response.Status){
+      //     this.router.navigate(['/Employees']);
+      //   }
+      //   else{
+      //     this.errorMessageFlag = true ;
+      //     this.errorMessage = "Incorrect username or password ";
+      //   }
+      // });
+    }
+  
+  }
+
+}
+
+
+
+
+
+service
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
+import { Employee } from '../interfaces/interface';
+import { Router } from '@angular/router';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BackendServerService {
+
+  constructor(private requestor : HttpClient,private router: Router) { }
+  private loggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  userAuthentication(authRequest : any){
+    return this.requestor.post(`${environment.backend}${'/user/authorization'}` , authRequest);
+  }
+  get isLoggedIn() {
+    return this.loggedIn.asObservable();
+  }
+  user:Employee
+  currentuser:any;
+  login(user: Employee) {
+  
+    if (user.username !== '' && user.password !== '' ) {
+      this.loggedIn.next(true);
+      this.currentuser=user
+      console.log("sadasasad",this.currentuser)
+      this.router.navigate(['/all-details']);
+    }
+  }
+  getAllEmployeeDetails(){
+    return this.requestor.get(`https://jsonplaceholder.typicode.com/posts`)
+  }
+ 
+  getEmployeeDetails(employeeDetail : any){
+    return this.requestor.get(`https://jsonplaceholder.typicode.com/posts/${employeeDetail}`);
+  }
+  
+  // posts
+  updateEmployeeDetails(employeeDetails : any,id:any){
+    console.log("sa",id)
+    return this.requestor.put(`https://jsonplaceholder.typicode.com/posts/${id}` ,employeeDetails);
+  }
+
+  deleteEmployeeDetails(employeeDetails : any){
+    return this.requestor.delete(`${environment.backend}${'/Employees/'}${employeeDetails}`);
+  }
+
+  addNewEmployee(employeeDetails : any){
+    return this.requestor.post(`${environment.backend}${'/Employees/'}` ,employeeDetails);
+  }
+}
+
+
+
+interfave.ts
+export interface Employee {
+    email : number ;
+    id : string ;
+    title : string ;
+    body : string ;
+   username:string;
+   password: string;
+}
+
+
