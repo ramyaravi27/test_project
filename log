@@ -1,0 +1,281 @@
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+
+import {Router} from '@angular/router'
+import { fabric } from 'fabric';
+import { PostService } from '../post/post.service';
+// import * as fabric from 'fabric/fabric-impl';
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
+})
+export class LoginComponent implements OnInit {
+
+
+form: FormGroup;
+private formSubmitAttempt: boolean;
+
+constructor(
+  private fb: FormBuilder,
+  private ucs: PostService
+) {}
+
+ngOnInit() {
+  this.form = this.fb.group({
+    userName: ['', Validators.required],
+    password: ['', Validators.required]
+  });
+}
+
+isFieldInvalid(field: string) {
+  return (
+    (!this.form.get(field).valid && this.form.get(field).touched) ||
+    (this.form.get(field).untouched && this.formSubmitAttempt)
+  );
+}
+errormsg:boolean= false
+object:any=[]
+onSubmit() {
+  
+  console.log("userdetails",this.form.value)
+  // if(this.form.value=="ramya@mail.com")
+  if (this.form.valid) {
+    this.ucs.login(this.form.value);
+  }
+  this.formSubmitAttempt = true;
+  this.object=this.form.value
+  console.log("value",this.object)
+} 
+
+
+getFullYear() {
+  return new Date().getFullYear();
+}
+
+}
+
+
+post service
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { Post } from './post';
+import { Client } from './client';
+// import { Shape } from './shape';
+@Injectable({
+  providedIn: 'root'
+})
+export class PostService {
+  private loggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  users: any;
+  user: Post;
+
+  constructor(
+    private router: Router,private _http: HttpClient
+  ) {}
+
+  // public currentUserSubject = new BehaviorSubject<Post>(new Post());
+  // public currentUser = this.currentUserSubject.asObservable().distinctUntilChanged();
+  // public clientUser = this.clientUserSubject.asObservable().distinctUntilChanged();
+  // private clientUserSubject = new BehaviorSubject<Client>(new ());
+  usercontacts :Post []=[
+    {id: 1,
+    firstname: 'Alex',
+    lastname: 'BlaBla',
+    email: 'alex.blabla@aol.at',
+    place:'polyfills',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/images2.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+
+  },
+  {
+    id: 2,
+    firstname: 'Otto',
+    lastname: 'Blubb',
+    email: 'otto.blubb@dsl.de',
+    place:'rendered',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download4.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 3,
+    firstname: 'Peter',
+    lastname: 'Pan',
+    email: 'peter.pan@neverland.com',
+    place:'initial',
+    type:'rectangle', x:30, y:30, w:12, h:34,
+    profile:'./assets/images/images3.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 4,
+    firstname: 'jemas',
+    lastname: 'list',
+    email: 'jemas.list@dsl.de',
+    place:'styles',
+    type:'rectangle', x:30, y:30, w:12, h:34,
+    profile:'./assets/images/download (1).jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 5,
+    firstname: 'chunks',
+    lastname: 'details',
+    email: 'chunks.vdetails@dsl.de',
+    place:'live',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download2.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 6,
+    firstname: 'sucess',
+    lastname: 'employee',
+    email: 'sucess.blubb@dsl.de',
+    place:'vendors',
+    type:'line', x:60, y:20, w:12, h:34,
+    profile:'./assets/images/download3.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 7,
+    firstname: 'unchange',
+    lastname: 'create',
+    email: 'employee.vcreate@dsl.de',
+    place:'browser',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/download4.jpeg',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  },
+  {
+    id: 8,
+    firstname: 'hash',
+    lastname: 'services',
+    email: 'hash.services@dsl.de',
+    place:'server',
+    type:'ellipse', x:10, y:10, w:12, h:34,
+    profile:'./assets/images/images1.png',
+    userName: "",
+    password: "",
+    date:21022021,
+  acesceries:"vele",
+  outgoing:650,
+  range:"Medium",
+  val:3,
+  }]
+  create(usercontact: Post) {
+    const itemIndex = this.usercontacts.length;
+    usercontact.id = this.getnextId();
+    // console.log(usercontact);
+    this.usercontacts[itemIndex] = usercontact;
+  }
+  delete(usercontact: Post) {
+    this.usercontacts.splice(this.usercontacts.indexOf(usercontact), 1);
+  }
+
+  update(usercontact: Post) {
+    const itemIndex = this.usercontacts.findIndex(item => item.id === usercontact.id);
+    // console.log(itemIndex);
+    this.usercontacts[itemIndex] = usercontact;
+  }
+  
+  // find(id): Observable<Post> {
+  //   return this.httpClient.get<Post>(this.apiURL + '/posts/' + id)
+  //   .pipe(
+  //     catchError(this.errorHandler)
+  //   )
+  // }
+   
+  getall(): Post[] {
+    // console.log('usercontactservice:getall');
+    // console.log(this.usercontacts);
+    return this.usercontacts;
+  }
+  getUserById(id: number) {
+    // console.log(id);
+    const itemIndex = this.usercontacts.findIndex(item => item.id === id);
+    // console.log(itemIndex);
+    return this.usercontacts[itemIndex];
+  }
+  getnextId(): number {
+    let highest = 0;
+    this.usercontacts.forEach(function (item) {
+      if (highest === 0) {
+        highest = item.id;
+      }
+      if (highest < item.id) {
+        highest = item.id;
+      }
+    });
+    return highest + 1;
+  }
+  get isLoggedIn() {
+    return this.loggedIn.asObservable();
+  }
+  
+
+  getShapes(){return this.usercontacts;}
+  login(user: Post) {
+  
+    if (user.userName !== '' && user.password !== '' ) {
+      this.loggedIn.next(true);
+      this.currentuser=user
+      console.log("sadasasad",this.currentuser)
+      this.router.navigate(['/Dashboard']);
+    }
+  }
+  currentuser:any;
+  logout() {
+    this.loggedIn.next(false);
+    this.router.navigate(['/login']);
+  }
+
+
+}
