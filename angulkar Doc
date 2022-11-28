@@ -1,0 +1,11 @@
+1.Create an angular app to see the car details
+  a.2 components are required
+  i.Add Data component 	
+  ii.View Data component
+  b.2 routes from Home page (Add, View)
+2.Get the list of cars and display in your component as a datatable.
+  a.GET API: https://ezsecure.in/angulartest/getList.php 
+3.Post Data to API
+  a.Create a form with 2 inputs model and price (Use NgModel / Reactive Forms)
+  b.Submit the data and save using the given API
+  c.POST API: https://ezsecure.in/angulartest/saveData.php 
