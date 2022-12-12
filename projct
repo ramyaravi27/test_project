@@ -1,0 +1,6 @@
+Clafly Project can be used for verifiy the insurance Elibility of patients and also show the patient particular details based on insurance verification.
+This Project was done by ANGULAR FRAMEWORK (version 11).
+ And also we can use third party open source for this project, they are BOOTSTRAP , DEVEXTREME , ANGULAR MATERIAL .This library are play major role in this project.
+This Project is completely web-based Single page Application. 
+And we can structure the project based on module format in angular framework.
+In this Project a lazy loading concept playing major role by using routing in angular frame work And this project can be developed for role based behaviour authentication.
